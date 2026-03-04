@@ -1,8 +1,15 @@
 import streamlit as st
-import numpy as np
+import pandas as pd
+import plotly.express as px
 from PIL import Image
+from pathlib import Path
 
 # Importe aqui suas bibliotecas do notebook (MTCNN, PyTorch/Tensorflow conforme seu modelo)
+
+PROJECT_ROOT = Path(__file__).resolve().parents[1]
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+CLEANED_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_cleaned.csv"
+PCA_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_pca.csv"
 
 # 1. Configuração da Página (Critério: Layout Wide)
 st.set_page_config(
@@ -70,7 +77,83 @@ with tab_analise:
 
 with tab_metricas:
     st.header("Desempenho do Modelo (Fase 3)")
-    # Espaço para os gráficos de Loss/Accuracy que vi no seu notebook
-    st.markdown("Visualização das métricas de treinamento:")
-    chart_data = np.random.randn(20, 2)  # Exemplo
-    st.line_chart(chart_data)
+    st.markdown("Visualizações interativas para análise forense (hover e zoom).")
+
+    try:
+        df_cleaned = pd.read_csv(CLEANED_DATA_PATH)
+        df_pca = pd.read_csv(PCA_DATA_PATH)
+    except FileNotFoundError as exc:
+        st.error(f"Arquivo de dados não encontrado: {exc}")
+    except Exception as exc:
+        st.error(f"Falha ao carregar os dados processados: {exc}")
+    else:
+        st.subheader("Matriz de Correlação Interativa")
+        numeric_cols = df_cleaned.select_dtypes(include=["number"]).columns.tolist()
+        if "media_id" in numeric_cols:
+            numeric_cols.remove("media_id")
+
+        if not numeric_cols:
+            st.warning("Não há colunas numéricas suficientes para gerar a correlação.")
+        else:
+            corr = df_cleaned[numeric_cols].corr()
+            fig_corr = px.imshow(
+                corr,
+                text_auto=".2f",
+                color_continuous_scale="RdBu",
+                zmin=-1,
+                zmax=1,
+                aspect="auto",
+                title="Correlação entre Features Numéricas",
+            )
+            fig_corr.update_layout(coloraxis_colorbar_title="Correlação")
+            st.plotly_chart(fig_corr, use_container_width=True)
+
+        st.subheader("Dispersão do PCA (PC1 x PC2)")
+        if "PC1" not in df_pca.columns or "PC2" not in df_pca.columns:
+            st.warning("Colunas PCA ausentes no dataset (esperado: PC1 e PC2).")
+        else:
+            df_plot = df_pca.copy()
+            color_col = None
+
+            if "label" in df_plot.columns:
+                label_map = {
+                    0: "REAL",
+                    1: "FAKE",
+                    "0": "REAL",
+                    "1": "FAKE",
+                    "real": "REAL",
+                    "fake": "FAKE",
+                    "REAL": "REAL",
+                    "FAKE": "FAKE",
+                }
+                df_plot["Target_Real_Fake"] = (
+                    df_plot["label"].astype(str).map(label_map).fillna(df_plot["label"].astype(str))
+                )
+                color_col = "Target_Real_Fake"
+
+            hover_cols = [
+                col
+                for col in ["media_type", "content_category", "audio_present", "source_platform", "label"]
+                if col in df_plot.columns
+            ]
+
+            if color_col:
+                fig_pca = px.scatter(
+                    df_plot,
+                    x="PC1",
+                    y="PC2",
+                    color=color_col,
+                    hover_data=hover_cols,
+                    title="PCA - Separação entre classes",
+                )
+            else:
+                fig_pca = px.scatter(
+                    df_plot,
+                    x="PC1",
+                    y="PC2",
+                    hover_data=hover_cols,
+                    title="PCA - Distribuição dos pontos",
+                )
+
+            fig_pca.update_traces(marker={"size": 9, "opacity": 0.8})
+            st.plotly_chart(fig_pca, use_container_width=True)
