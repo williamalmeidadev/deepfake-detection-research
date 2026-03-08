@@ -1,11 +1,11 @@
-import streamlit as st
+import json
+from pathlib import Path
+
+import joblib
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from PIL import Image
-from pathlib import Path
-
-# Importe aqui suas bibliotecas do notebook (MTCNN, PyTorch/Tensorflow conforme seu modelo)
+import streamlit as st
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
@@ -13,13 +13,13 @@ CLEANED_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_cleaned.csv"
 PCA_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_pca.csv"
 TIMESERIES_PATH = PROCESSED_DIR / "df_timeseries.csv"
 PROPHET_FORECAST_PATH = PROCESSED_DIR / "prophet_forecast.csv"
+CLASSIFIER_PATH = PROCESSED_DIR / "deepfake_classifier.joblib"
+CLASSIFIER_METRICS_PATH = PROCESSED_DIR / "deepfake_classifier_metrics.json"
 
-# 1. Configuração da Página (Critério: Layout Wide)
 st.set_page_config(
     page_title="Deepfake Forensics", layout="wide", initial_sidebar_state="expanded"
 )
 
-# 2. Barra Lateral (Critério: st.sidebar)
 with st.sidebar:
     st.title("🛡️ Painel de Controle")
     st.markdown("---")
@@ -41,276 +41,390 @@ with st.sidebar:
         "Este painel separa os filtros do conteúdo principal para evitar sobrecarga cognitiva."
     )
 
-# 3. Título e Área Principal (Critério: st.title e st.markdown)
 st.title("Sistema de Detecção de Deepfake Forensics")
-st.markdown(
-    "Analise a autenticidade de mídias digitais utilizando modelos de Deep Learning."
-)
+st.markdown("Painel analítico com métricas e previsões do projeto de deepfake.")
 
-# 4. Organização por Guias (Critério: Dividido por guias/Tabs)
-tab_upload, tab_analise, tab_metricas = st.tabs(
-    ["📤 Upload", "🔍 Análise Forense", "📊 Métricas do Modelo"]
-)
 
-with tab_upload:
-    st.header("Envio de Arquivo")
-    uploaded_file = st.file_uploader(
-        "Escolha uma imagem para análise...", type=["jpg", "png", "jpeg"]
-    )
+@st.cache_data(show_spinner=False)
+def load_processed_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    df_cleaned = pd.read_csv(CLEANED_DATA_PATH)
+    df_pca = pd.read_csv(PCA_DATA_PATH)
+    df_timeseries = pd.read_csv(TIMESERIES_PATH)
+    df_prophet_forecast = pd.read_csv(PROPHET_FORECAST_PATH)
+    return df_cleaned, df_pca, df_timeseries, df_prophet_forecast
 
-    if uploaded_file is not None:
-        image = Image.open(uploaded_file)
-        st.image(image, caption="Imagem Carregada", use_container_width=True)
-        st.success("Arquivo carregado com sucesso! Vá para a aba 'Análise Forense'.")
 
-with tab_analise:
-    st.header("Resultado da Inferência")
-    if uploaded_file is not None:
-        col1, col2 = st.columns(2)
+@st.cache_resource(show_spinner=False)
+def load_classifier():
+    return joblib.load(CLASSIFIER_PATH)
 
-        with col1:
-            st.subheader("Detecção de Face")
-            # Simulando o processo do seu notebook (MTCNN)
-            st.info("Detectando faces e extraindo frames...")
-            st.image(image, width=300)  # Aqui entraria o crop da face
 
-        with col2:
-            st.subheader("Classificação")
-            # Aqui entraria a chamada do seu modelo .pth ou .h5
-            resultado = "REAL"  # Exemplo de saída
-            probabilidade = 0.98
+@st.cache_data(show_spinner=False)
+def load_classifier_threshold(default: float = 0.49) -> float:
+    if not CLASSIFIER_METRICS_PATH.exists():
+        return default
 
-            if resultado == "REAL":
-                st.success(f"Resultado: {resultado} ({probabilidade*100:.2f}%)")
-            else:
-                st.error(f"Resultado: FAKE ({probabilidade*100:.2f}%)")
-    else:
-        st.warning("Por favor, faça o upload de uma imagem na aba anterior.")
+    with open(CLASSIFIER_METRICS_PATH, "r", encoding="utf-8") as f:
+        metrics = json.load(f)
 
-with tab_metricas:
+    return float(metrics.get("fake_threshold", default))
+
+
+def render_analytics_tab(
+    df_cleaned: pd.DataFrame,
+    df_pca: pd.DataFrame,
+    df_timeseries: pd.DataFrame,
+    df_prophet_forecast: pd.DataFrame,
+) -> pd.DataFrame:
     st.header("Desempenho do Modelo (Fase 3)")
     st.markdown("Visualizações interativas para análise forense (hover e zoom).")
 
-    try:
-        df_cleaned = pd.read_csv(CLEANED_DATA_PATH)
-        df_pca = pd.read_csv(PCA_DATA_PATH)
-        df_timeseries = pd.read_csv(TIMESERIES_PATH)
-        df_prophet_forecast = pd.read_csv(PROPHET_FORECAST_PATH)
-    except FileNotFoundError as exc:
-        st.error(f"Arquivo de dados não encontrado: {exc}")
-    except Exception as exc:
-        st.error(f"Falha ao carregar os dados processados: {exc}")
-    else:
-        anomaly_cols = [
-            col
-            for col in [
-                "lip_sync_score",
-                "visual_artifacts_score",
-                "lighting_inconsistency_score",
-            ]
-            if col in df_cleaned.columns
+    anomaly_cols = [
+        col
+        for col in [
+            "lip_sync_score",
+            "visual_artifacts_score",
+            "lighting_inconsistency_score",
         ]
-        df_cleaned_filtered = df_cleaned.copy()
-        if anomaly_cols:
-            df_cleaned_filtered["anomaly_score"] = (
-                df_cleaned_filtered[anomaly_cols].abs().mean(axis=1)
-            )
-            anomaly_cutoff = df_cleaned_filtered["anomaly_score"].quantile(
-                anomaly_threshold_pct / 100
-            )
-            df_cleaned_filtered = df_cleaned_filtered[
-                df_cleaned_filtered["anomaly_score"] >= anomaly_cutoff
-            ].copy()
-        else:
-            anomaly_cutoff = None
-
-        st.caption(
-            f"Filtro ativo: top {100 - anomaly_threshold_pct}% de anomalia | "
-            f"Registros filtrados: {len(df_cleaned_filtered)}/{len(df_cleaned)}"
+        if col in df_cleaned.columns
+    ]
+    df_cleaned_filtered = df_cleaned.copy()
+    if anomaly_cols:
+        df_cleaned_filtered["anomaly_score"] = (
+            df_cleaned_filtered[anomaly_cols].abs().mean(axis=1)
         )
-        if anomaly_cutoff is not None:
-            st.caption(f"Corte de anomalia aplicado: {anomaly_cutoff:.4f}")
+        anomaly_cutoff = df_cleaned_filtered["anomaly_score"].quantile(
+            anomaly_threshold_pct / 100
+        )
+        df_cleaned_filtered = df_cleaned_filtered[
+            df_cleaned_filtered["anomaly_score"] >= anomaly_cutoff
+        ].copy()
+    else:
+        anomaly_cutoff = None
 
-        st.subheader("Série Temporal: Real vs Previsões (ARIMA e Prophet)")
-        required_ts = {"Data", "Volume_Deepfakes"}
-        required_pf = {"ds", "yhat"}
+    st.caption(
+        f"Filtro ativo: top {100 - anomaly_threshold_pct}% de anomalia | "
+        f"Registros filtrados: {len(df_cleaned_filtered)}/{len(df_cleaned)}"
+    )
+    if anomaly_cutoff is not None:
+        st.caption(f"Corte de anomalia aplicado: {anomaly_cutoff:.4f}")
 
-        if not required_ts.issubset(df_timeseries.columns):
-            st.warning(
-                "Colunas ausentes em df_timeseries.csv (esperado: Data, Volume_Deepfakes)."
+    st.subheader("Série Temporal: Real vs Previsões (ARIMA e Prophet)")
+    required_ts = {"Data", "Volume_Deepfakes"}
+    required_pf = {"ds", "yhat"}
+
+    if not required_ts.issubset(df_timeseries.columns):
+        st.warning(
+            "Colunas ausentes em df_timeseries.csv (esperado: Data, Volume_Deepfakes)."
+        )
+    elif not required_pf.issubset(df_prophet_forecast.columns):
+        st.warning("Colunas ausentes em prophet_forecast.csv (esperado: ds, yhat).")
+    else:
+        df_timeseries_plot = (
+            df_timeseries[["Data", "Volume_Deepfakes"]]
+            .rename(columns={"Data": "ds", "Volume_Deepfakes": "y"})
+            .copy()
+        )
+        df_timeseries_plot["ds"] = pd.to_datetime(df_timeseries_plot["ds"])
+        df_timeseries_plot["y"] = pd.to_numeric(df_timeseries_plot["y"], errors="coerce")
+        df_timeseries_plot = df_timeseries_plot.dropna(subset=["ds", "y"]).sort_values("ds")
+
+        df_prophet_plot = df_prophet_forecast[["ds", "yhat"]].copy()
+        df_prophet_plot["ds"] = pd.to_datetime(df_prophet_plot["ds"])
+        df_prophet_plot["yhat"] = pd.to_numeric(df_prophet_plot["yhat"], errors="coerce")
+        df_prophet_plot = df_prophet_plot.dropna(subset=["ds", "yhat"]).sort_values("ds")
+
+        max_real_date = df_timeseries_plot["ds"].max()
+        prophet_future = df_prophet_plot[df_prophet_plot["ds"] > max_real_date].copy()
+
+        prophet_date_filter = None
+        if temporal_model_view in ["Ambos", "Prophet"] and not prophet_future.empty:
+            prophet_min_date = prophet_future["ds"].min().date()
+            prophet_max_date = prophet_future["ds"].max().date()
+            prophet_date_filter = st.sidebar.date_input(
+                "Data inicial da previsão Prophet",
+                value=prophet_min_date,
+                min_value=prophet_min_date,
+                max_value=prophet_max_date,
             )
-        elif not required_pf.issubset(df_prophet_forecast.columns):
-            st.warning("Colunas ausentes em prophet_forecast.csv (esperado: ds, yhat).")
-        else:
-            df_timeseries_plot = (
-                df_timeseries[["Data", "Volume_Deepfakes"]]
-                .rename(columns={"Data": "ds", "Volume_Deepfakes": "y"})
-                .copy()
+            prophet_future = prophet_future[
+                prophet_future["ds"] >= pd.to_datetime(prophet_date_filter)
+            ].copy()
+
+        forecast_steps = max(len(prophet_future), 30)
+
+        try:
+            from statsmodels.tsa.arima.model import ARIMA
+
+            arima_model = ARIMA(df_timeseries_plot["y"], order=(1, 1, 1))
+            arima_fit = arima_model.fit()
+            arima_values = arima_fit.forecast(steps=forecast_steps)
+            arima_dates = pd.date_range(
+                start=max_real_date + pd.Timedelta(days=1), periods=forecast_steps, freq="D"
             )
-            df_timeseries_plot["ds"] = pd.to_datetime(df_timeseries_plot["ds"])
-            df_timeseries_plot["y"] = pd.to_numeric(df_timeseries_plot["y"], errors="coerce")
-            df_timeseries_plot = df_timeseries_plot.dropna(subset=["ds", "y"]).sort_values("ds")
+            df_arima_plot = pd.DataFrame({"ds": arima_dates, "yhat": arima_values})
+        except Exception as exc:
+            st.error(f"Falha ao gerar previsão ARIMA: {exc}")
+            df_arima_plot = pd.DataFrame(columns=["ds", "yhat"])
 
-            df_prophet_plot = df_prophet_forecast[["ds", "yhat"]].copy()
-            df_prophet_plot["ds"] = pd.to_datetime(df_prophet_plot["ds"])
-            df_prophet_plot["yhat"] = pd.to_numeric(df_prophet_plot["yhat"], errors="coerce")
-            df_prophet_plot = df_prophet_plot.dropna(subset=["ds", "yhat"]).sort_values("ds")
-
-            max_real_date = df_timeseries_plot["ds"].max()
-            prophet_future = df_prophet_plot[df_prophet_plot["ds"] > max_real_date].copy()
-
-            prophet_date_filter = None
-            if temporal_model_view in ["Ambos", "Prophet"] and not prophet_future.empty:
-                prophet_min_date = prophet_future["ds"].min().date()
-                prophet_max_date = prophet_future["ds"].max().date()
-                prophet_date_filter = st.sidebar.date_input(
-                    "Data inicial da previsão Prophet",
-                    value=prophet_min_date,
-                    min_value=prophet_min_date,
-                    max_value=prophet_max_date,
-                )
-                prophet_future = prophet_future[
-                    prophet_future["ds"] >= pd.to_datetime(prophet_date_filter)
-                ].copy()
-
-            forecast_steps = max(len(prophet_future), 30)
-
-            try:
-                from statsmodels.tsa.arima.model import ARIMA
-
-                arima_model = ARIMA(df_timeseries_plot["y"], order=(1, 1, 1))
-                arima_fit = arima_model.fit()
-                arima_values = arima_fit.forecast(steps=forecast_steps)
-                arima_dates = pd.date_range(
-                    start=max_real_date + pd.Timedelta(days=1), periods=forecast_steps, freq="D"
-                )
-                df_arima_plot = pd.DataFrame({"ds": arima_dates, "yhat": arima_values})
-            except Exception as exc:
-                st.error(f"Falha ao gerar previsão ARIMA: {exc}")
-                df_arima_plot = pd.DataFrame(columns=["ds", "yhat"])
-
-            fig_forecast = go.Figure()
+        fig_forecast = go.Figure()
+        fig_forecast.add_trace(
+            go.Scatter(
+                x=df_timeseries_plot["ds"],
+                y=df_timeseries_plot["y"],
+                mode="lines",
+                name="Dados Reais",
+            )
+        )
+        if temporal_model_view in ["Ambos", "ARIMA"]:
             fig_forecast.add_trace(
                 go.Scatter(
-                    x=df_timeseries_plot["ds"],
-                    y=df_timeseries_plot["y"],
+                    x=df_arima_plot["ds"],
+                    y=df_arima_plot["yhat"],
                     mode="lines",
-                    name="Dados Reais",
+                    name="Previsão ARIMA",
                 )
             )
-            if temporal_model_view in ["Ambos", "ARIMA"]:
-                fig_forecast.add_trace(
-                    go.Scatter(
-                        x=df_arima_plot["ds"],
-                        y=df_arima_plot["yhat"],
-                        mode="lines",
-                        name="Previsão ARIMA",
-                    )
+        if temporal_model_view in ["Ambos", "Prophet"]:
+            fig_forecast.add_trace(
+                go.Scatter(
+                    x=prophet_future["ds"],
+                    y=prophet_future["yhat"],
+                    mode="lines",
+                    name="Previsão Prophet",
                 )
-            if temporal_model_view in ["Ambos", "Prophet"]:
-                fig_forecast.add_trace(
-                    go.Scatter(
-                        x=prophet_future["ds"],
-                        y=prophet_future["yhat"],
-                        mode="lines",
-                        name="Previsão Prophet",
-                    )
-                )
-            fig_forecast.update_layout(
-                title="Sobreposição de Série Temporal: Real vs Modelos de Previsão",
-                xaxis_title="Data",
-                yaxis_title="Volume",
-                legend_title="Séries",
             )
-            st.plotly_chart(fig_forecast, use_container_width=True)
-            if prophet_date_filter:
-                st.caption(
-                    f"Filtro Prophet aplicado a partir de: {prophet_date_filter.strftime('%Y-%m-%d')}"
+        fig_forecast.update_layout(
+            title="Sobreposição de Série Temporal: Real vs Modelos de Previsão",
+            xaxis_title="Data",
+            yaxis_title="Volume",
+            legend_title="Séries",
+        )
+        st.plotly_chart(fig_forecast, use_container_width=True)
+        if prophet_date_filter:
+            st.caption(
+                f"Filtro Prophet aplicado a partir de: {prophet_date_filter.strftime('%Y-%m-%d')}"
+            )
+
+    st.subheader("Matriz de Correlação Interativa")
+    numeric_cols = df_cleaned_filtered.select_dtypes(include=["number"]).columns.tolist()
+    if "media_id" in numeric_cols:
+        numeric_cols.remove("media_id")
+
+    if not numeric_cols:
+        st.warning("Não há colunas numéricas suficientes para gerar a correlação.")
+    else:
+        corr = df_cleaned_filtered[numeric_cols].corr()
+        fig_corr = px.imshow(
+            corr,
+            text_auto=".2f",
+            color_continuous_scale="RdBu",
+            zmin=-1,
+            zmax=1,
+            aspect="auto",
+            title="Correlação entre Features Numéricas",
+        )
+        fig_corr.update_layout(coloraxis_colorbar_title="Correlação")
+        st.plotly_chart(fig_corr, use_container_width=True)
+
+    st.subheader("Dispersão do PCA (PC1 x PC2)")
+    if "PC1" not in df_pca.columns or "PC2" not in df_pca.columns:
+        st.warning("Colunas PCA ausentes no dataset (esperado: PC1 e PC2).")
+    else:
+        df_plot = df_pca.copy()
+        for col in [
+            "label",
+            "media_type",
+            "content_category",
+            "audio_present",
+            "source_platform",
+        ]:
+            if col in df_plot.columns and col in df_cleaned_filtered.columns:
+                allowed_values = (
+                    df_cleaned_filtered[col].astype(str).dropna().unique().tolist()
                 )
+                df_plot = df_plot[df_plot[col].astype(str).isin(allowed_values)]
 
-        st.subheader("Matriz de Correlação Interativa")
-        numeric_cols = df_cleaned_filtered.select_dtypes(include=["number"]).columns.tolist()
-        if "media_id" in numeric_cols:
-            numeric_cols.remove("media_id")
+        color_col = None
 
-        if not numeric_cols:
-            st.warning("Não há colunas numéricas suficientes para gerar a correlação.")
+        if "label" in df_plot.columns:
+            label_map = {
+                0: "REAL",
+                1: "FAKE",
+                "0": "REAL",
+                "1": "FAKE",
+                "real": "REAL",
+                "fake": "FAKE",
+                "REAL": "REAL",
+                "FAKE": "FAKE",
+            }
+            df_plot["Target_Real_Fake"] = (
+                df_plot["label"].astype(str).map(label_map).fillna(df_plot["label"].astype(str))
+            )
+            color_col = "Target_Real_Fake"
+
+        hover_cols = [
+            col
+            for col in ["media_type", "content_category", "audio_present", "source_platform", "label"]
+            if col in df_plot.columns
+        ]
+
+        if color_col:
+            fig_pca = px.scatter(
+                df_plot,
+                x="PC1",
+                y="PC2",
+                color=color_col,
+                hover_data=hover_cols,
+                title="PCA - Separação entre classes",
+            )
         else:
-            corr = df_cleaned_filtered[numeric_cols].corr()
-            fig_corr = px.imshow(
-                corr,
-                text_auto=".2f",
-                color_continuous_scale="RdBu",
-                zmin=-1,
-                zmax=1,
-                aspect="auto",
-                title="Correlação entre Features Numéricas",
+            fig_pca = px.scatter(
+                df_plot,
+                x="PC1",
+                y="PC2",
+                hover_data=hover_cols,
+                title="PCA - Distribuição dos pontos",
             )
-            fig_corr.update_layout(coloraxis_colorbar_title="Correlação")
-            st.plotly_chart(fig_corr, use_container_width=True)
 
-        st.subheader("Dispersão do PCA (PC1 x PC2)")
-        if "PC1" not in df_pca.columns or "PC2" not in df_pca.columns:
-            st.warning("Colunas PCA ausentes no dataset (esperado: PC1 e PC2).")
+        fig_pca.update_traces(marker={"size": 9, "opacity": 0.8})
+        st.plotly_chart(fig_pca, use_container_width=True)
+
+    st.subheader("Amostra dos Dados Filtrados")
+    st.dataframe(df_cleaned_filtered.head(100), use_container_width=True)
+    return df_cleaned_filtered
+
+
+def render_prediction_tab(df_cleaned: pd.DataFrame) -> None:
+    st.header("Teste do Modelo de Classificação")
+    st.markdown(
+        "Preencha os campos abaixo para simular uma mídia e visualizar a predição do classificador (Real/Fake)."
+    )
+
+    if not CLASSIFIER_PATH.exists():
+        st.warning(
+            f"Modelo não encontrado em `{CLASSIFIER_PATH}`. Rode `scripts/train_classifier.py` para gerar o artefato."
+        )
+        return
+
+    try:
+        model = load_classifier()
+    except Exception as exc:
+        st.error(f"Falha ao carregar o modelo serializado: {exc}")
+        return
+
+    feature_cols = list(getattr(model, "feature_names_in_", []))
+    if not feature_cols:
+        feature_cols = [
+            c
+            for c in df_cleaned.columns
+            if c not in {"label", "media_id", "generation_method", "anomaly_score"}
+        ]
+
+    form_defaults = {}
+    for col in feature_cols:
+        if col not in df_cleaned.columns:
+            continue
+        if pd.api.types.is_numeric_dtype(df_cleaned[col]):
+            form_defaults[col] = float(pd.to_numeric(df_cleaned[col], errors="coerce").median())
         else:
-            df_plot = df_pca.copy()
-            for col in [
-                "label",
-                "media_type",
-                "content_category",
-                "audio_present",
-                "source_platform",
-            ]:
-                if col in df_plot.columns and col in df_cleaned_filtered.columns:
-                    allowed_values = (
-                        df_cleaned_filtered[col].astype(str).dropna().unique().tolist()
-                    )
-                    df_plot = df_plot[df_plot[col].astype(str).isin(allowed_values)]
+            modes = df_cleaned[col].dropna().astype(str).mode()
+            form_defaults[col] = modes.iloc[0] if not modes.empty else ""
 
-            color_col = None
+    threshold_default = load_classifier_threshold()
 
-            if "label" in df_plot.columns:
-                label_map = {
-                    0: "REAL",
-                    1: "FAKE",
-                    "0": "REAL",
-                    "1": "FAKE",
-                    "real": "REAL",
-                    "fake": "FAKE",
-                    "REAL": "REAL",
-                    "FAKE": "FAKE",
-                }
-                df_plot["Target_Real_Fake"] = (
-                    df_plot["label"].astype(str).map(label_map).fillna(df_plot["label"].astype(str))
-                )
-                color_col = "Target_Real_Fake"
+    with st.form("single_prediction_form"):
+        st.subheader("Entrada Manual")
+        inputs = {}
 
-            hover_cols = [
-                col
-                for col in ["media_type", "content_category", "audio_present", "source_platform", "label"]
-                if col in df_plot.columns
-            ]
+        for col in feature_cols:
+            if col not in df_cleaned.columns:
+                continue
 
-            if color_col:
-                fig_pca = px.scatter(
-                    df_plot,
-                    x="PC1",
-                    y="PC2",
-                    color=color_col,
-                    hover_data=hover_cols,
-                    title="PCA - Separação entre classes",
+            if pd.api.types.is_numeric_dtype(df_cleaned[col]):
+                col_series = pd.to_numeric(df_cleaned[col], errors="coerce").dropna()
+                min_val = float(col_series.min()) if not col_series.empty else -5.0
+                max_val = float(col_series.max()) if not col_series.empty else 5.0
+                if min_val == max_val:
+                    min_val -= 1.0
+                    max_val += 1.0
+
+                inputs[col] = st.number_input(
+                    f"{col}",
+                    min_value=min_val,
+                    max_value=max_val,
+                    value=float(form_defaults.get(col, 0.0)),
                 )
             else:
-                fig_pca = px.scatter(
-                    df_plot,
-                    x="PC1",
-                    y="PC2",
-                    hover_data=hover_cols,
-                    title="PCA - Distribuição dos pontos",
+                options = df_cleaned[col].dropna().astype(str).unique().tolist()
+                options = sorted(options)
+                default_value = str(form_defaults.get(col, options[0] if options else ""))
+                if default_value and default_value not in options:
+                    options = [default_value] + options
+
+                inputs[col] = st.selectbox(
+                    f"{col}",
+                    options=options if options else [""],
+                    index=(options.index(default_value) if default_value in options else 0),
                 )
 
-            fig_pca.update_traces(marker={"size": 9, "opacity": 0.8})
-            st.plotly_chart(fig_pca, use_container_width=True)
+        fake_threshold = st.slider(
+            "Threshold para classificar como FAKE",
+            min_value=0.0,
+            max_value=1.0,
+            value=float(threshold_default),
+            step=0.01,
+        )
 
-        st.subheader("Amostra dos Dados Filtrados")
-        st.dataframe(df_cleaned_filtered.head(100), use_container_width=True)
+        submitted = st.form_submit_button("Testar predição")
+
+    if not submitted:
+        return
+
+    input_df = pd.DataFrame([inputs])
+
+    missing_cols = [c for c in feature_cols if c not in input_df.columns]
+    for missing in missing_cols:
+        input_df[missing] = pd.NA
+
+    input_df = input_df[feature_cols]
+
+    try:
+        if hasattr(model, "predict_proba"):
+            prob_fake = float(model.predict_proba(input_df)[0][1])
+        else:
+            prob_fake = float(model.predict(input_df)[0])
+
+        pred_class = int(prob_fake >= fake_threshold)
+        pred_label = "FAKE" if pred_class == 1 else "REAL"
+
+        col1, col2, col3 = st.columns(3)
+        col1.metric("Classe prevista", pred_label)
+        col2.metric("Probabilidade de FAKE", f"{prob_fake:.2%}")
+        col3.metric("Threshold aplicado", f"{fake_threshold:.2f}")
+
+        if pred_label == "FAKE":
+            st.error("Resultado: a amostra foi classificada como suspeita (FAKE).")
+        else:
+            st.success("Resultado: a amostra foi classificada como autêntica (REAL).")
+
+        st.caption("Payload enviado ao modelo:")
+        st.dataframe(input_df, use_container_width=True)
+    except Exception as exc:
+        st.error(f"Falha ao executar a predição: {exc}")
+
+
+try:
+    df_cleaned, df_pca, df_timeseries, df_prophet_forecast = load_processed_data()
+except FileNotFoundError as exc:
+    st.error(f"Arquivo de dados não encontrado: {exc}")
+except Exception as exc:
+    st.error(f"Falha ao carregar os dados processados: {exc}")
+else:
+    tab_analytics, tab_test = st.tabs(["Painel Analítico", "Teste do Modelo"])
+
+    with tab_analytics:
+        render_analytics_tab(df_cleaned, df_pca, df_timeseries, df_prophet_forecast)
+
+    with tab_test:
+        render_prediction_tab(df_cleaned)
