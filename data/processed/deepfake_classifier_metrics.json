@@ -21,7 +21,11 @@
     ],
     "min_signal_features": 0,
     "dropped_low_signal_rows": 0,
-    "rows_used_for_training_and_eval": 1320
+    "rows_used_for_training_and_eval": 1320,
+    "dropped_non_predictive_or_leakage_columns": [
+      "media_id",
+      "generation_method"
+    ]
   },
   "classification_report": {
     "Real": {

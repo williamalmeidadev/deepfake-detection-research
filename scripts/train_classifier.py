@@ -28,6 +28,7 @@ from sklearn.preprocessing import OneHotEncoder
 
 
 LABEL_MAP = {"real": 0, "fake": 1}
+LEAKAGE_COLUMNS = {"generation_method"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -179,9 +180,13 @@ def main() -> None:
     if args.min_signal_features < 0:
         raise ValueError("--min-signal-features must be >= 0.")
 
-    # Prevent ID leakage into model learning.
+    # Prevent identifier/target leakage into model learning.
+    non_predictive_cols = []
     if "media_id" in X.columns:
-        X = X.drop(columns=["media_id"])
+        non_predictive_cols.append("media_id")
+    non_predictive_cols.extend(sorted(col for col in LEAKAGE_COLUMNS if col in X.columns))
+    if non_predictive_cols:
+        X = X.drop(columns=non_predictive_cols)
 
     available_signal_cols = [c for c in args.signal_columns if c in X.columns]
     if not available_signal_cols:
@@ -243,6 +248,7 @@ def main() -> None:
             "min_signal_features": int(args.min_signal_features),
             "dropped_low_signal_rows": dropped_count,
             "rows_used_for_training_and_eval": int(len(X)),
+            "dropped_non_predictive_or_leakage_columns": non_predictive_cols,
         },
         "classification_report": classification_report(
             y_test,
