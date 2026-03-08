@@ -227,6 +227,110 @@ def render_analytics_tab(
         fig_corr.update_layout(coloraxis_colorbar_title="Correlação")
         st.plotly_chart(fig_corr, use_container_width=True)
 
+    st.subheader("Storytelling Forense: Onde os sinais estão mais fortes")
+
+    label_col = None
+    if "label" in df_cleaned_filtered.columns:
+        label_col = "label"
+
+    if label_col:
+        label_map = {
+            0: "REAL",
+            1: "FAKE",
+            "0": "REAL",
+            "1": "FAKE",
+            "real": "REAL",
+            "fake": "FAKE",
+            "REAL": "REAL",
+            "FAKE": "FAKE",
+        }
+        df_story = df_cleaned_filtered.copy()
+        df_story["class_label"] = (
+            df_story[label_col].astype(str).map(label_map).fillna(df_story[label_col].astype(str))
+        )
+    else:
+        df_story = df_cleaned_filtered.copy()
+        df_story["class_label"] = "N/A"
+
+    col_artifacts, col_platform = st.columns(2)
+
+    with col_artifacts:
+        if {"visual_artifacts_score", "class_label"}.issubset(df_story.columns):
+            fig_artifacts = px.box(
+                df_story,
+                x="class_label",
+                y="visual_artifacts_score",
+                color="class_label",
+                points="all",
+                title="Distribuição de Artefatos Visuais por Classe",
+                labels={
+                    "class_label": "Classe",
+                    "visual_artifacts_score": "Score de Artefatos",
+                },
+                color_discrete_map={"REAL": "#1f77b4", "FAKE": "#d62728"},
+            )
+            fig_artifacts.update_layout(showlegend=False)
+            st.plotly_chart(fig_artifacts, use_container_width=True)
+        else:
+            st.info("Dados insuficientes para distribuição de artefatos visuais.")
+
+    with col_platform:
+        if {"source_platform", "class_label"}.issubset(df_story.columns):
+            df_platform_mix = (
+                df_story.groupby(["source_platform", "class_label"], dropna=False)
+                .size()
+                .reset_index(name="count")
+            )
+            fig_platform_mix = px.bar(
+                df_platform_mix,
+                x="source_platform",
+                y="count",
+                color="class_label",
+                barmode="stack",
+                title="Volume por Rede Social e Classe",
+                labels={
+                    "source_platform": "Rede Social",
+                    "count": "Volume",
+                    "class_label": "Classe",
+                },
+                color_discrete_map={"REAL": "#1f77b4", "FAKE": "#d62728"},
+            )
+            st.plotly_chart(fig_platform_mix, use_container_width=True)
+        else:
+            st.info("Dados insuficientes para distribuição por rede social.")
+
+    if {"source_platform", "content_category", "class_label"}.issubset(df_story.columns):
+        df_fake_rate = (
+            df_story.assign(is_fake=(df_story["class_label"] == "FAKE").astype(float))
+            .groupby(["source_platform", "content_category"], dropna=False)["is_fake"]
+            .mean()
+            .reset_index(name="fake_rate")
+        )
+        pivot_fake_rate = df_fake_rate.pivot(
+            index="source_platform", columns="content_category", values="fake_rate"
+        )
+        fig_fake_rate = px.imshow(
+            pivot_fake_rate,
+            color_continuous_scale="Reds",
+            zmin=0,
+            zmax=1,
+            text_auto=".0%",
+            aspect="auto",
+            title="Heatmap: Taxa de Fake por Rede Social x Categoria",
+            labels={"x": "Categoria", "y": "Rede Social", "color": "Taxa de Fake"},
+        )
+        st.plotly_chart(fig_fake_rate, use_container_width=True)
+
+        if not df_fake_rate.empty:
+            top_cell = df_fake_rate.sort_values("fake_rate", ascending=False).iloc[0]
+            st.caption(
+                "Insight: maior concentração de suspeitas em "
+                f"{top_cell['source_platform']} / {top_cell['content_category']} "
+                f"({top_cell['fake_rate']:.1%} de fake)."
+            )
+    else:
+        st.info("Dados insuficientes para heatmap de taxa de fake por plataforma/categoria.")
+
     st.subheader("Dispersão do PCA (PC1 x PC2)")
     if "PC1" not in df_pca.columns or "PC2" not in df_pca.columns:
         st.warning("Colunas PCA ausentes no dataset (esperado: PC1 e PC2).")
