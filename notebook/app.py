@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 import joblib
@@ -14,7 +13,6 @@ PCA_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_pca.csv"
 TIMESERIES_PATH = PROCESSED_DIR / "df_timeseries.csv"
 PROPHET_FORECAST_PATH = PROCESSED_DIR / "prophet_forecast.csv"
 CLASSIFIER_PATH = PROCESSED_DIR / "deepfake_classifier.joblib"
-CLASSIFIER_METRICS_PATH = PROCESSED_DIR / "deepfake_classifier_metrics.json"
 
 st.set_page_config(
     page_title="Deepfake Forensics", layout="wide", initial_sidebar_state="expanded"
@@ -60,14 +58,26 @@ def load_classifier():
 
 
 @st.cache_data(show_spinner=False)
-def load_classifier_threshold(default: float = 0.49) -> float:
-    if not CLASSIFIER_METRICS_PATH.exists():
-        return default
+def compute_arima_forecast(
+    y_values: tuple[float, ...],
+    forecast_start_date: str,
+    forecast_steps: int,
+) -> pd.DataFrame:
+    from statsmodels.tsa.arima.model import ARIMA
 
-    with open(CLASSIFIER_METRICS_PATH, "r", encoding="utf-8") as f:
-        metrics = json.load(f)
+    if len(y_values) < 5:
+        raise ValueError("Série temporal insuficiente para ajuste ARIMA.")
+    if forecast_steps <= 0:
+        raise ValueError("forecast_steps deve ser maior que zero.")
 
-    return float(metrics.get("fake_threshold", default))
+    y_series = pd.Series(y_values, dtype="float64")
+    arima_model = ARIMA(y_series, order=(1, 1, 1))
+    arima_fit = arima_model.fit()
+    arima_values = arima_fit.forecast(steps=forecast_steps)
+    arima_dates = pd.date_range(
+        start=pd.to_datetime(forecast_start_date), periods=forecast_steps, freq="D"
+    )
+    return pd.DataFrame({"ds": arima_dates, "yhat": arima_values})
 
 
 def render_analytics_tab(
@@ -154,15 +164,13 @@ def render_analytics_tab(
         forecast_steps = max(len(prophet_future), 30)
 
         try:
-            from statsmodels.tsa.arima.model import ARIMA
-
-            arima_model = ARIMA(df_timeseries_plot["y"], order=(1, 1, 1))
-            arima_fit = arima_model.fit()
-            arima_values = arima_fit.forecast(steps=forecast_steps)
-            arima_dates = pd.date_range(
-                start=max_real_date + pd.Timedelta(days=1), periods=forecast_steps, freq="D"
+            df_arima_plot = compute_arima_forecast(
+                y_values=tuple(df_timeseries_plot["y"].astype(float).tolist()),
+                forecast_start_date=(
+                    max_real_date + pd.Timedelta(days=1)
+                ).strftime("%Y-%m-%d"),
+                forecast_steps=int(forecast_steps),
             )
-            df_arima_plot = pd.DataFrame({"ds": arima_dates, "yhat": arima_values})
         except Exception as exc:
             st.error(f"Falha ao gerar previsão ARIMA: {exc}")
             df_arima_plot = pd.DataFrame(columns=["ds", "yhat"])
@@ -435,8 +443,6 @@ def render_prediction_tab(df_cleaned: pd.DataFrame) -> None:
             modes = df_cleaned[col].dropna().astype(str).mode()
             form_defaults[col] = modes.iloc[0] if not modes.empty else ""
 
-    threshold_default = load_classifier_threshold()
-
     with st.form("single_prediction_form"):
         st.subheader("Entrada Manual")
         inputs = {}
@@ -472,14 +478,6 @@ def render_prediction_tab(df_cleaned: pd.DataFrame) -> None:
                     index=(options.index(default_value) if default_value in options else 0),
                 )
 
-        fake_threshold = st.slider(
-            "Threshold para classificar como FAKE",
-            min_value=0.0,
-            max_value=1.0,
-            value=float(threshold_default),
-            step=0.01,
-        )
-
         submitted = st.form_submit_button("Testar predição")
 
     if not submitted:
@@ -494,18 +492,20 @@ def render_prediction_tab(df_cleaned: pd.DataFrame) -> None:
     input_df = input_df[feature_cols]
 
     try:
+        pred_class = int(model.predict(input_df)[0])
+        pred_label = "FAKE" if pred_class == 1 else "REAL"
+
         if hasattr(model, "predict_proba"):
             prob_fake = float(model.predict_proba(input_df)[0][1])
         else:
-            prob_fake = float(model.predict(input_df)[0])
+            prob_fake = float("nan")
 
-        pred_class = int(prob_fake >= fake_threshold)
-        pred_label = "FAKE" if pred_class == 1 else "REAL"
-
-        col1, col2, col3 = st.columns(3)
+        col1, col2 = st.columns(2)
         col1.metric("Classe prevista", pred_label)
-        col2.metric("Probabilidade de FAKE", f"{prob_fake:.2%}")
-        col3.metric("Threshold aplicado", f"{fake_threshold:.2f}")
+        if pd.notna(prob_fake):
+            col2.metric("Probabilidade de FAKE", f"{prob_fake:.2%}")
+        else:
+            col2.metric("Probabilidade de FAKE", "N/A")
 
         if pred_label == "FAKE":
             st.error("Resultado: a amostra foi classificada como suspeita (FAKE).")
