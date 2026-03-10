@@ -1,0 +1,265 @@
+media_type,content_category,face_count,audio_present,lip_sync_score,visual_artifacts_score,compression_level,lighting_inconsistency_score,source_platform,y_true,y_pred,prob_fake,fake_threshold
+Image,Political Speech,2.0,No,0.8,0.16,0.63,0.14,News Website,0,0,0.0025,0.49
+Video,Interview,2.0,No,0.92,0.25,0.21,0.27,TikTok,0,0,0.0,0.49
+Audio,Political Speech,3.0,No,0.8,0.2,0.51,0.11,TikTok,0,0,0.01,0.49
+Audio,Entertainment,2.0,No,0.39,0.62,0.44,0.69,Twitter,1,1,1.0,0.49
+Audio,Entertainment,2.0,No,0.74,0.27,0.47,0.1,TikTok,0,0,0.0,0.49
+Image,Social Media,1.0,No,0.28,0.7,0.72,0.72,TikTok,1,1,0.9925,0.49
+Video,Interview,4.0,Yes,0.33,0.77,0.16,0.93,YouTube,1,1,0.9975,0.49
+Audio,News,2.0,No,0.48,0.99,0.7,0.93,Facebook,1,1,0.9975,0.49
+Image,News,1.0,Yes,0.18,0.45,0.96,0.92,Instagram,1,1,0.995,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Interview,1.0,No,0.93,0.06,0.0,0.21,Facebook,0,0,0.02,0.49
+Video,Entertainment,2.0,Yes,0.92,0.15,0.27,0.03,TikTok,0,0,0.0125,0.49
+Audio,Interview,4.0,Yes,0.83,0.02,0.16,0.17,TikTok,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Political Speech,4.0,No,0.82,0.05,0.13,0.11,TikTok,0,0,0.015,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,News,1.0,No,0.6,0.49,0.3,0.71,News Website,1,1,0.99,0.49
+Video,News,0.0,Yes,0.82,0.24,0.73,0.19,YouTube,0,0,0.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,Interview,2.0,Yes,0.23,0.84,0.35,0.99,Facebook,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,News,0.0,Yes,0.78,0.03,0.8,0.16,Twitter,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Political Speech,4.0,Yes,0.18,0.71,0.88,1.0,YouTube,1,1,0.995,0.49
+Video,Social Media,3.0,Yes,0.82,0.28,0.07,0.29,News Website,0,0,0.0075,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,Political Speech,3.0,Yes,0.89,0.05,0.89,0.24,YouTube,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Interview,4.0,Yes,0.71,0.16,0.43,0.26,Twitter,0,0,0.0125,0.49
+Video,Political Speech,2.0,No,0.96,0.06,0.16,0.21,YouTube,0,0,0.0025,0.49
+Audio,Political Speech,0.0,No,0.28,0.66,0.86,0.74,TikTok,1,1,0.9975,0.49
+Video,Political Speech,0.0,No,0.14,0.94,0.97,0.44,Twitter,1,1,0.99,0.49
+Audio,Social Media,4.0,Yes,0.42,0.41,0.19,0.62,YouTube,1,1,0.9975,0.49
+Image,Social Media,0.0,No,0.09,0.41,0.6,0.65,Facebook,1,1,0.995,0.49
+Video,Interview,0.0,Yes,0.23,0.67,0.25,0.67,TikTok,1,1,0.995,0.49
+Audio,Interview,1.0,No,0.89,0.29,0.74,0.08,Instagram,0,0,0.0025,0.49
+Image,Interview,1.0,Yes,0.48,0.8,0.89,0.47,Facebook,1,1,0.9975,0.49
+Video,News,3.0,No,0.93,0.07,0.97,0.12,Facebook,0,0,0.0075,0.49
+Audio,News,0.0,No,0.63,0.68,0.11,0.96,Instagram,1,1,0.985,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,Social Media,3.0,No,0.99,0.24,0.67,0.28,Facebook,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,News,0.0,No,0.85,0.13,0.96,0.12,TikTok,0,0,0.005,0.49
+Image,Political Speech,0.0,Yes,0.09,0.62,0.49,0.55,News Website,1,1,1.0,0.49
+Audio,Political Speech,2.0,Yes,0.43,0.58,0.47,0.94,YouTube,1,1,0.9975,0.49
+Video,Interview,0.0,Yes,0.88,0.09,0.41,0.01,News Website,0,0,0.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Political Speech,1.0,Yes,0.66,0.66,0.44,0.82,YouTube,1,1,0.9825,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Social Media,4.0,Yes,0.81,0.19,0.68,0.29,YouTube,0,0,0.0,0.49
+Audio,Interview,1.0,Yes,0.72,0.05,0.63,0.28,YouTube,0,0,0.005,0.49
+Image,Political Speech,3.0,Yes,0.84,0.16,0.94,0.01,News Website,0,0,0.0025,0.49
+Image,News,0.0,Yes,0.71,0.01,0.59,0.11,YouTube,0,0,0.0075,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,Interview,3.0,No,0.78,0.19,0.66,0.24,YouTube,0,0,0.0025,0.49
+Image,News,3.0,No,0.99,0.3,0.59,0.19,TikTok,0,0,0.005,0.49
+Image,Social Media,1.0,Yes,0.32,0.63,0.6,0.75,Twitter,1,1,0.9925,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Social Media,2.0,Yes,0.85,0.23,0.81,0.24,YouTube,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,News,1.0,No,0.88,0.13,0.71,0.02,Instagram,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Entertainment,3.0,No,0.77,0.21,0.03,0.27,Twitter,0,0,0.0025,0.49
+Image,Social Media,2.0,Yes,0.98,0.1,0.22,0.01,Twitter,0,0,0.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Image,News,2.0,Yes,0.85,0.26,0.82,0.29,Instagram,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,Entertainment,0.0,No,0.28,0.42,0.48,0.71,Facebook,1,1,0.9925,0.49
+Audio,Political Speech,4.0,No,0.36,0.72,0.76,0.5,Twitter,1,1,0.9975,0.49
+Video,Social Media,3.0,Yes,0.89,0.26,0.46,0.24,TikTok,0,0,0.01,0.49
+Video,Entertainment,3.0,No,0.51,0.81,0.33,0.82,TikTok,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,Social Media,1.0,Yes,0.16,0.73,0.27,0.78,News Website,1,1,1.0,0.49
+Image,Political Speech,1.0,No,0.73,0.24,0.08,0.12,YouTube,0,0,0.0075,0.49
+Image,News,1.0,Yes,0.71,0.03,0.52,0.17,News Website,0,0,0.0075,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,News,2.0,No,0.44,0.98,0.93,0.96,Facebook,1,1,0.9925,0.49
+Image,Entertainment,4.0,Yes,0.13,0.81,0.42,0.89,Twitter,1,1,1.0,0.49
+Video,News,3.0,Yes,0.01,0.82,0.62,0.98,Instagram,1,1,1.0,0.49
+Image,Entertainment,1.0,Yes,0.51,0.55,0.58,0.76,Instagram,1,1,0.99,0.49
+Image,News,4.0,No,0.99,0.28,0.42,0.05,YouTube,0,0,0.0075,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Interview,0.0,Yes,0.73,0.12,0.47,0.1,News Website,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,News,1.0,No,0.7,0.15,0.16,0.15,Twitter,0,0,0.03260223664294606,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,News,1.0,Yes,0.93,0.13,0.98,0.03,Instagram,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Image,Interview,3.0,No,0.63,0.86,0.81,0.67,YouTube,1,1,0.9975,0.49
+Image,Entertainment,1.0,No,0.99,0.1,0.48,0.25,Twitter,0,0,0.0,0.49
+Audio,Interview,3.0,Yes,0.81,0.18,0.03,0.27,Facebook,0,0,0.0125,0.49
+Audio,Political Speech,3.0,Yes,0.82,0.02,0.22,0.05,Facebook,0,0,0.0,0.49
+Audio,Entertainment,3.0,No,0.97,0.08,0.64,0.13,News Website,0,0,0.0,0.49
+Image,Interview,4.0,No,0.89,0.26,0.93,0.16,Instagram,0,0,0.005,0.49
+Audio,Entertainment,0.0,Yes,0.86,0.08,0.99,0.04,YouTube,0,0,0.01,0.49
+Video,Social Media,4.0,Yes,0.86,0.25,0.78,0.14,News Website,0,0,0.0,0.49
+Image,Social Media,1.0,Yes,0.25,0.61,0.25,0.65,TikTok,1,1,1.0,0.49
+Image,News,0.0,Yes,0.8,0.15,0.32,0.16,Instagram,0,0,0.0,0.49
+Image,Social Media,1.0,Yes,0.85,0.26,0.35,0.14,Instagram,0,0,0.0025,0.49
+Video,Interview,3.0,Yes,0.75,0.23,0.3,0.12,Twitter,0,0,0.0025,0.49
+Audio,Political Speech,3.0,Yes,0.47,0.76,0.5,0.88,News Website,1,1,1.0,0.49
+Image,Interview,4.0,No,0.96,0.17,0.75,0.16,TikTok,0,0,0.0075,0.49
+Audio,News,1.0,Yes,0.82,0.13,0.74,0.2,TikTok,0,0,0.0025,0.49
+Video,Interview,3.0,Yes,0.97,0.1,0.81,0.12,Twitter,0,0,0.0,0.49
+Audio,Interview,1.0,No,0.61,0.66,0.33,0.76,News Website,1,1,0.995,0.49
+Video,Entertainment,0.0,Yes,0.99,0.26,0.13,0.12,Instagram,0,0,0.005,0.49
+Image,Political Speech,1.0,No,0.06,0.51,0.36,0.47,News Website,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,Social Media,4.0,No,0.25,0.9,0.5,0.92,YouTube,1,1,0.9925,0.49
+Image,Social Media,1.0,Yes,0.7,0.12,0.76,0.02,TikTok,0,0,0.05627787655084451,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Political Speech,0.0,Yes,0.87,0.07,0.91,0.26,Facebook,0,0,0.0,0.49
+Audio,Entertainment,0.0,Yes,0.86,0.25,0.72,0.29,News Website,0,0,0.0025,0.49
+Image,Interview,3.0,No,0.02,0.71,0.21,0.65,Twitter,1,1,0.9975,0.49
+Video,Entertainment,3.0,No,0.77,0.28,0.77,0.12,YouTube,0,0,0.0025,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,Political Speech,1.0,Yes,0.45,0.56,0.66,0.65,YouTube,1,1,0.9925,0.49
+Audio,Interview,4.0,No,0.86,0.2,0.15,0.25,TikTok,0,0,0.005,0.49
+Video,Social Media,4.0,Yes,0.09,0.45,0.26,0.79,Facebook,1,1,0.9975,0.49
+Audio,News,4.0,No,0.94,0.25,0.23,0.12,News Website,0,0,0.025,0.49
+Audio,News,4.0,Yes,1.0,0.07,0.64,0.12,Twitter,0,0,0.0025,0.49
+Image,Interview,1.0,Yes,0.95,0.02,0.86,0.09,News Website,0,0,0.005,0.49
+Audio,Entertainment,1.0,No,0.51,0.41,0.97,0.42,YouTube,1,1,0.9875,0.49
+Audio,News,3.0,No,0.82,0.16,0.69,0.29,News Website,0,0,0.015,0.49
+Image,Interview,0.0,No,0.74,0.29,0.44,0.03,Facebook,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Image,Social Media,3.0,No,0.89,0.04,0.16,0.05,TikTok,0,0,0.005,0.49
+Image,Interview,3.0,Yes,0.7,0.02,0.61,0.28,YouTube,0,0,0.0388704561042524,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Image,Social Media,3.0,No,0.02,0.58,0.89,0.78,Twitter,1,1,1.0,0.49
+Audio,Interview,3.0,Yes,0.85,0.2,0.93,0.19,News Website,0,0,0.01,0.49
+Video,Entertainment,4.0,No,0.67,0.51,0.21,0.63,Twitter,1,1,0.9875,0.49
+Image,Social Media,1.0,Yes,0.77,0.16,0.15,0.0,TikTok,0,0,0.0175,0.49
+Audio,Political Speech,0.0,No,0.73,0.05,0.13,0.02,Twitter,0,0,0.0,0.49
+Audio,News,0.0,Yes,0.63,0.99,0.67,0.79,Instagram,1,1,0.9925,0.49
+Image,Political Speech,1.0,No,0.93,0.02,0.37,0.12,News Website,0,0,0.0025,0.49
+Image,Political Speech,3.0,Yes,0.05,0.81,0.84,0.5,TikTok,1,1,0.9925,0.49
+Image,News,4.0,No,0.95,0.22,0.11,0.04,Facebook,0,0,0.005,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,News,1.0,No,0.79,0.11,0.68,0.09,Facebook,0,0,0.005,0.49
+Image,Interview,4.0,No,0.89,0.11,0.78,0.07,News Website,0,0,0.005,0.49
+Image,Political Speech,0.0,No,0.2,0.71,0.65,0.58,TikTok,1,1,0.995,0.49
+Image,Social Media,0.0,Yes,0.04,1.0,0.07,0.82,Twitter,1,1,0.9825,0.49
+Video,Social Media,4.0,Yes,0.46,0.5,0.01,0.6,Instagram,1,1,0.9925,0.49
+Video,News,1.0,Yes,0.57,0.6,0.64,0.45,YouTube,1,1,0.9875,0.49
+Audio,Social Media,1.0,No,0.89,0.11,0.24,0.0,TikTok,0,0,0.0025,0.49
+Audio,Interview,0.0,Yes,0.59,0.81,0.46,0.92,Facebook,1,1,0.9975,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Interview,3.0,Yes,0.03,0.99,0.61,0.79,Twitter,1,1,0.9975,0.49
+Image,Social Media,3.0,Yes,0.26,0.77,0.53,0.55,News Website,1,1,1.0,0.49
+Image,Political Speech,1.0,No,0.25,0.54,0.8,0.44,TikTok,1,1,0.995,0.49
+Image,News,3.0,Yes,0.57,0.84,0.66,0.55,News Website,1,1,0.9925,0.49
+Image,Political Speech,0.0,No,0.4,0.96,0.9,0.69,News Website,1,1,0.99,0.49
+Image,Social Media,0.0,Yes,0.45,0.42,0.86,0.43,Facebook,1,1,1.0,0.49
+Audio,Entertainment,4.0,Yes,0.95,0.28,0.67,0.2,YouTube,0,0,0.005,0.49
+Image,Political Speech,3.0,Yes,0.07,0.69,0.56,0.55,Instagram,1,1,0.9925,0.49
+Image,Interview,4.0,Yes,0.97,0.25,0.03,0.08,News Website,0,0,0.015,0.49
+Audio,Social Media,2.0,Yes,0.49,0.6,0.82,0.86,Twitter,1,1,0.9975,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Interview,1.0,Yes,0.63,0.96,0.72,0.74,News Website,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,News,4.0,No,0.58,0.8,0.66,0.8,TikTok,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Entertainment,2.0,Yes,0.6,0.82,0.34,0.48,Instagram,1,1,0.99,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,News,3.0,No,0.98,0.21,0.53,0.22,News Website,0,0,0.015,0.49
+Audio,Entertainment,4.0,Yes,0.27,0.72,0.23,0.67,Twitter,1,1,0.9975,0.49
+Image,Political Speech,3.0,Yes,0.56,0.56,0.86,0.52,YouTube,1,1,0.995,0.49
+Video,Interview,4.0,No,0.07,0.99,0.7,0.73,YouTube,1,1,1.0,0.49
+Audio,Entertainment,4.0,Yes,0.92,0.16,0.76,0.27,TikTok,0,0,0.0025,0.49
+Video,Political Speech,3.0,Yes,0.15,0.8,0.62,0.53,Instagram,1,1,0.9975,0.49
+Image,Social Media,2.0,No,0.82,0.11,0.94,0.16,TikTok,0,0,0.01,0.49
+Image,Political Speech,1.0,No,0.08,0.91,0.98,0.55,YouTube,1,1,0.9825,0.49
+Audio,Entertainment,3.0,No,0.6,0.67,0.99,0.73,YouTube,1,1,0.995,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Image,Interview,4.0,No,0.84,0.08,0.6,0.01,Facebook,0,0,0.0025,0.49
+Video,Interview,3.0,Yes,0.92,0.1,0.94,0.27,Twitter,0,0,0.0225,0.49
+Audio,Social Media,0.0,Yes,0.86,0.03,1.0,0.13,Twitter,0,0,0.015,0.49
+Image,Social Media,2.0,No,0.56,0.5,0.12,0.83,Twitter,1,1,0.9925,0.49
+Image,Political Speech,2.0,Yes,0.71,0.25,0.66,0.27,TikTok,0,0,0.0075,0.49
+Audio,Entertainment,4.0,No,0.14,0.66,0.09,0.71,TikTok,1,1,0.995,0.49
+Image,Political Speech,2.0,No,0.54,0.61,0.97,0.62,Twitter,1,1,0.995,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Audio,Political Speech,4.0,Yes,0.93,0.2,0.17,0.0,YouTube,0,0,0.0,0.49
+Image,Political Speech,4.0,Yes,0.24,0.76,0.6,0.94,YouTube,1,1,1.0,0.49
+Image,Political Speech,3.0,Yes,0.76,0.03,0.44,0.23,TikTok,0,0,0.0075,0.49
+Image,News,0.0,No,0.7,0.03,0.06,0.13,YouTube,0,0,0.045069611564265324,0.49
+Video,Social Media,3.0,No,0.28,0.75,0.59,0.68,News Website,1,1,1.0,0.49
+Audio,Social Media,1.0,Yes,0.52,0.59,0.38,0.89,YouTube,1,1,0.995,0.49
+Audio,Interview,3.0,Yes,0.89,0.21,0.18,0.08,Twitter,0,0,0.0,0.49
+Image,Entertainment,1.0,Yes,0.86,0.09,0.89,0.24,Instagram,0,0,0.005,0.49
+Image,News,1.0,Yes,0.37,0.48,0.98,0.53,Instagram,1,1,0.99,0.49
+Video,Entertainment,1.0,No,0.5,0.72,0.96,0.46,Twitter,1,1,0.9975,0.49
+Video,Entertainment,1.0,No,0.61,0.42,0.61,0.75,Instagram,1,1,0.9925,0.49
+Video,Interview,1.0,Yes,0.51,0.8,0.81,0.7,Facebook,1,1,0.9975,0.49
+Video,Social Media,3.0,Yes,0.94,0.3,0.28,0.24,Facebook,0,0,0.0025,0.49
+Video,Entertainment,0.0,Yes,0.41,0.62,0.98,0.78,YouTube,1,1,0.99,0.49
+Audio,News,2.0,Yes,0.8,0.07,0.27,0.01,YouTube,0,0,0.0025,0.49
+Audio,News,2.0,Yes,0.39,0.95,0.2,0.72,YouTube,1,1,0.995,0.49
+Image,News,2.0,No,0.92,0.03,0.11,0.06,Facebook,0,0,0.0,0.49
+Image,Political Speech,1.0,No,0.91,0.04,0.08,0.03,Facebook,0,0,0.0025,0.49
+Image,Interview,1.0,Yes,0.53,0.4,0.37,0.42,TikTok,1,1,0.9096092801719753,0.49
+Image,Interview,2.0,No,0.72,0.16,0.98,0.19,Facebook,0,0,0.0275,0.49
+Audio,Political Speech,1.0,Yes,0.37,0.56,0.12,0.92,News Website,1,1,0.9975,0.49
+Image,Interview,0.0,Yes,0.33,0.8,0.51,0.78,News Website,1,1,0.995,0.49
+Video,Social Media,3.0,Yes,0.33,0.71,0.12,0.79,Instagram,1,1,0.9975,0.49
+Image,Entertainment,4.0,Yes,0.02,0.61,0.19,0.85,Twitter,1,1,0.9975,0.49
+Audio,Entertainment,3.0,No,0.69,0.59,0.48,0.48,TikTok,1,1,0.9925,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Entertainment,1.0,No,0.16,0.46,0.34,0.85,Facebook,1,1,0.9975,0.49
+Image,Social Media,2.0,No,0.51,0.92,0.71,0.71,TikTok,1,1,0.9875,0.49
+Audio,Social Media,1.0,Yes,0.92,0.17,0.51,0.04,News Website,0,0,0.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Political Speech,2.0,No,0.54,0.87,0.56,0.98,TikTok,1,1,0.9975,0.49
+Image,Political Speech,3.0,Yes,0.14,0.97,0.85,0.93,YouTube,1,1,0.9975,0.49
+Video,Interview,3.0,No,0.13,0.98,0.43,0.68,News Website,1,1,0.9975,0.49
+Image,Political Speech,2.0,Yes,0.76,0.14,0.8,0.05,TikTok,0,0,0.01,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Audio,Social Media,0.0,Yes,0.57,0.4,0.07,0.82,Instagram,1,1,0.9134210133683457,0.49
+Audio,Interview,3.0,No,0.66,0.84,0.78,0.51,TikTok,1,1,0.9975,0.49
+Image,Interview,3.0,No,0.82,0.09,0.4,0.26,TikTok,0,0,0.0,0.49
+Image,News,3.0,No,0.77,0.07,0.05,0.25,Twitter,0,0,0.005,0.49
+Image,Political Speech,3.0,Yes,0.05,0.88,0.08,0.65,Instagram,1,1,0.995,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,News,1.0,No,0.06,0.6,0.83,0.67,Twitter,1,1,1.0,0.49
+Video,News,1.0,Yes,0.86,0.17,0.46,0.22,Facebook,0,0,0.0,0.49
+Video,Entertainment,3.0,No,0.52,0.63,0.77,0.46,Twitter,1,1,0.9975,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Political Speech,4.0,No,0.2,0.73,0.08,0.97,YouTube,1,1,0.9975,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Image,Political Speech,2.0,No,0.82,0.04,0.06,0.05,YouTube,0,0,0.0075,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,News,1.0,No,0.05,0.68,0.42,0.8,News Website,1,1,0.9925,0.49
+Audio,Political Speech,0.0,Yes,0.94,0.21,0.4,0.1,Instagram,0,0,0.0025,0.49
+Image,Entertainment,3.0,No,0.65,0.41,0.07,0.7,Instagram,1,1,0.99,0.49
+Image,Entertainment,2.0,Yes,0.55,0.55,0.59,0.46,Facebook,1,1,0.995,0.49
+Audio,Political Speech,3.0,Yes,0.9,0.28,0.4,0.02,Twitter,0,0,0.0025,0.49
+Video,Interview,4.0,No,0.15,0.54,0.9,0.77,YouTube,1,1,1.0,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,0,1,0.4927588768035958,0.49
+Video,Unknown,,Unknown,,,,,DFDC,1,1,0.4927588768035958,0.49
+Video,Political Speech,1.0,No,0.88,0.0,0.46,0.18,YouTube,0,0,0.0025,0.49
+Image,Social Media,4.0,Yes,0.18,0.43,0.82,0.48,Facebook,1,1,0.9975,0.49
+Image,News,2.0,Yes,0.89,0.15,0.63,0.14,Facebook,0,0,0.005,0.49
+Audio,News,0.0,Yes,0.82,0.06,0.42,0.27,YouTube,0,0,0.0025,0.49
+Audio,Interview,3.0,Yes,0.42,0.58,0.9,0.58,Instagram,1,1,1.0,0.49

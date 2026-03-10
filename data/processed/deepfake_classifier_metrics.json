@@ -1,0 +1,57 @@
+{
+  "accuracy": 0.8825757575757576,
+  "precision": 0.8098159509202454,
+  "recall": 1.0,
+  "f1": 0.8949152542372881,
+  "roc_auc": 0.9697543617998163,
+  "fake_threshold": 0.49,
+  "class_distribution": {
+    "train_real": 529,
+    "train_fake": 527,
+    "test_real": 132,
+    "test_fake": 132
+  },
+  "data_filtering": {
+    "signal_columns_used": [
+      "face_count",
+      "lip_sync_score",
+      "visual_artifacts_score",
+      "compression_level",
+      "lighting_inconsistency_score"
+    ],
+    "min_signal_features": 0,
+    "dropped_low_signal_rows": 0,
+    "rows_used_for_training_and_eval": 1320,
+    "dropped_non_predictive_or_leakage_columns": [
+      "media_id",
+      "generation_method"
+    ]
+  },
+  "classification_report": {
+    "Real": {
+      "precision": 1.0,
+      "recall": 0.7651515151515151,
+      "f1-score": 0.8669527896995708,
+      "support": 132.0
+    },
+    "Fake": {
+      "precision": 0.8098159509202454,
+      "recall": 1.0,
+      "f1-score": 0.8949152542372881,
+      "support": 132.0
+    },
+    "accuracy": 0.8825757575757576,
+    "macro avg": {
+      "precision": 0.9049079754601227,
+      "recall": 0.8825757575757576,
+      "f1-score": 0.8809340219684294,
+      "support": 264.0
+    },
+    "weighted avg": {
+      "precision": 0.9049079754601227,
+      "recall": 0.8825757575757576,
+      "f1-score": 0.8809340219684294,
+      "support": 264.0
+    }
+  }
+}

@@ -1,0 +1,26 @@
+# Virtual environments
+.venv/
+venv/
+
+# Python cache/build
+__pycache__/
+*.py[cod]
+*.so
+
+# Tool caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# OS/editor noise
+.DS_Store
+.vscode/
+.idea/
+
+# Runtime and local artifacts
+*.log
+
+# Local raw data (do not version real source datasets by default)
+data/raw/*
+!data/raw/.gitkeep
