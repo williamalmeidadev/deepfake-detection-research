@@ -242,20 +242,28 @@ def render_analytics_tab(
         label_col = "label"
 
     if label_col:
-        label_map = {
-            0: "REAL",
-            1: "FAKE",
-            "0": "REAL",
-            "1": "FAKE",
-            "real": "REAL",
-            "fake": "FAKE",
-            "REAL": "REAL",
-            "FAKE": "FAKE",
-        }
         df_story = df_cleaned_filtered.copy()
-        df_story["class_label"] = (
-            df_story[label_col].astype(str).map(label_map).fillna(df_story[label_col].astype(str))
+        raw_label = df_story[label_col].astype(str).str.strip()
+        normalized = raw_label.str.lower().map(
+            {
+                "0": "REAL",
+                "1": "FAKE",
+                "real": "REAL",
+                "fake": "FAKE",
+            }
         )
+        df_story["class_label"] = normalized.fillna(raw_label)
+
+        class_counts = df_story["class_label"].value_counts(dropna=False)
+        total_story = int(len(df_story))
+        if total_story:
+            fake_count = int(class_counts.get("FAKE", 0))
+            real_count = int(class_counts.get("REAL", 0))
+            st.caption(
+                "Distribuicao no filtro: "
+                f"FAKE {fake_count} ({fake_count / total_story:.1%}) | "
+                f"REAL {real_count} ({real_count / total_story:.1%})"
+            )
     else:
         df_story = df_cleaned_filtered.copy()
         df_story["class_label"] = "N/A"
@@ -360,19 +368,16 @@ def render_analytics_tab(
         color_col = None
 
         if "label" in df_plot.columns:
-            label_map = {
-                0: "REAL",
-                1: "FAKE",
-                "0": "REAL",
-                "1": "FAKE",
-                "real": "REAL",
-                "fake": "FAKE",
-                "REAL": "REAL",
-                "FAKE": "FAKE",
-            }
-            df_plot["Target_Real_Fake"] = (
-                df_plot["label"].astype(str).map(label_map).fillna(df_plot["label"].astype(str))
+            raw_label = df_plot["label"].astype(str).str.strip()
+            normalized = raw_label.str.lower().map(
+                {
+                    "0": "REAL",
+                    "1": "FAKE",
+                    "real": "REAL",
+                    "fake": "FAKE",
+                }
             )
+            df_plot["Target_Real_Fake"] = normalized.fillna(raw_label)
             color_col = "Target_Real_Fake"
 
         hover_cols = [
