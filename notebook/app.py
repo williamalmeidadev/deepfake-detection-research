@@ -63,7 +63,9 @@ def compute_arima_forecast(
     forecast_start_date: str,
     forecast_steps: int,
 ) -> pd.DataFrame:
-    from statsmodels.tsa.arima.model import ARIMA
+    import pmdarima as pm
+    import pandas as pd
+    import numpy as np
 
     if len(y_values) < 5:
         raise ValueError("Série temporal insuficiente para ajuste ARIMA.")
@@ -71,9 +73,24 @@ def compute_arima_forecast(
         raise ValueError("forecast_steps deve ser maior que zero.")
 
     y_series = pd.Series(y_values, dtype="float64")
-    arima_model = ARIMA(y_series, order=(1, 1, 1))
-    arima_fit = arima_model.fit()
-    arima_values = arima_fit.forecast(steps=forecast_steps)
+    
+    # Lógica Complexa: Utilização do método stepwise do auto_arima para varrer o 
+    # espaço de hiperparâmetros (p,d,q) minimizando o critério de informação (AIC).
+    # O modelo anterior era estático e falhava ao tentar forçar convergência linear.
+    auto_model = pm.auto_arima(
+        y_series,
+        seasonal=True,
+        m=7, # Informa ao modelo que existe um ciclo de 7 dias (semanal)
+        stepwise=True,
+        suppress_warnings=True,
+        error_action="ignore"
+    )
+
+    arima_values = auto_model.predict(n_periods=forecast_steps)
+    
+    # Pós-processamento crítico: Contagem de deepfakes não pode ser negativa.
+    arima_values = np.clip(arima_values, a_min=0, a_max=None)
+    
     arima_dates = pd.date_range(
         start=pd.to_datetime(forecast_start_date), periods=forecast_steps, freq="D"
     )
@@ -161,7 +178,7 @@ def render_analytics_tab(
                 prophet_future["ds"] >= pd.to_datetime(prophet_date_filter)
             ].copy()
 
-        forecast_steps = max(len(prophet_future), 30)
+        forecast_steps = max(len(prophet_future), 180)
 
         try:
             df_arima_plot = compute_arima_forecast(
@@ -242,19 +259,23 @@ def render_analytics_tab(
         label_col = "label"
 
     if label_col:
-        label_map = {
-            0: "REAL",
-            1: "FAKE",
-            "0": "REAL",
-            "1": "FAKE",
-            "real": "REAL",
-            "fake": "FAKE",
-            "REAL": "REAL",
-            "FAKE": "FAKE",
-        }
         df_story = df_cleaned_filtered.copy()
+        
+        # Lógica Complexa: Transforma a coluna em string, remove o ".0" do final 
+        # via regex caso exista, passa para maiúsculo e mapeia de forma robusta.
         df_story["class_label"] = (
-            df_story[label_col].astype(str).map(label_map).fillna(df_story[label_col].astype(str))
+            df_story[label_col]
+            .astype(str)
+            .str.replace(r"\.0$", "", regex=True)
+            .str.strip()
+            .str.upper()
+            .map({
+                "0": "REAL",
+                "1": "FAKE",
+                "REAL": "REAL",
+                "FAKE": "FAKE"
+            })
+            .fillna("N/A")
         )
     else:
         df_story = df_cleaned_filtered.copy()
