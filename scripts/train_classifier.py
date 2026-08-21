@@ -110,7 +110,7 @@ def parse_args() -> argparse.Namespace:
 
 
 def normalize_target(y: pd.Series) -> pd.Series:
-    if y.dtype == "object":
+    if y.dtype == "object" or pd.api.types.is_string_dtype(y):
         normalized = y.astype(str).str.strip().str.lower().map(LABEL_MAP)
         if normalized.isna().any():
             unknown = sorted(y[normalized.isna()].astype(str).unique().tolist())

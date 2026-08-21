@@ -15,6 +15,7 @@ class TestSmoke(unittest.TestCase):
             ROOT / "scripts" / "run_pca.py",
             ROOT / "scripts" / "train_classifier.py",
             ROOT / "scripts" / "train_prophet.py",
+            ROOT / "scripts" / "train_arima.py",
         ]
         for file_path in files:
             self.assertTrue(file_path.exists(), f"Missing file: {file_path}")
@@ -36,6 +37,7 @@ class TestSmoke(unittest.TestCase):
             },
             ROOT / "data" / "processed" / "df_timeseries.csv": {"Data", "Volume_Deepfakes"},
             ROOT / "data" / "processed" / "prophet_forecast.csv": {"ds", "yhat"},
+            ROOT / "data" / "processed" / "arima_forecast.csv": {"ds", "yhat"},
         }
 
         for csv_path, required_cols in expected.items():
