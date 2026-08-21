@@ -12,6 +12,7 @@ CLEANED_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_cleaned.csv"
 PCA_DATA_PATH = PROCESSED_DIR / "deepfake_dataset_pca.csv"
 TIMESERIES_PATH = PROCESSED_DIR / "df_timeseries.csv"
 PROPHET_FORECAST_PATH = PROCESSED_DIR / "prophet_forecast.csv"
+ARIMA_FORECAST_PATH = PROCESSED_DIR / "arima_forecast.csv"
 CLASSIFIER_PATH = PROCESSED_DIR / "deepfake_classifier.joblib"
 
 st.set_page_config(
@@ -44,12 +45,20 @@ st.markdown("Painel analítico com métricas e previsões do projeto de deepfake
 
 
 @st.cache_data(show_spinner=False)
-def load_processed_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+def load_processed_data() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame | None]:
     df_cleaned = pd.read_csv(CLEANED_DATA_PATH)
     df_pca = pd.read_csv(PCA_DATA_PATH)
     df_timeseries = pd.read_csv(TIMESERIES_PATH)
     df_prophet_forecast = pd.read_csv(PROPHET_FORECAST_PATH)
-    return df_cleaned, df_pca, df_timeseries, df_prophet_forecast
+    
+    df_arima_forecast = None
+    if ARIMA_FORECAST_PATH.exists():
+        try:
+            df_arima_forecast = pd.read_csv(ARIMA_FORECAST_PATH)
+        except Exception:
+            pass
+            
+    return df_cleaned, df_pca, df_timeseries, df_prophet_forecast, df_arima_forecast
 
 
 @st.cache_resource(show_spinner=False)
@@ -85,6 +94,7 @@ def render_analytics_tab(
     df_pca: pd.DataFrame,
     df_timeseries: pd.DataFrame,
     df_prophet_forecast: pd.DataFrame,
+    df_arima_forecast: pd.DataFrame | None = None,
 ) -> pd.DataFrame:
     st.header("Desempenho do Modelo (Fase 3)")
     st.markdown("Visualizações interativas para análise forense (hover e zoom).")
@@ -161,19 +171,31 @@ def render_analytics_tab(
                 prophet_future["ds"] >= pd.to_datetime(prophet_date_filter)
             ].copy()
 
-        forecast_steps = max(len(prophet_future), 30)
+        df_arima_plot = None
+        if df_arima_forecast is not None:
+            try:
+                df_arima_plot = df_arima_forecast[["ds", "yhat"]].copy()
+                df_arima_plot["ds"] = pd.to_datetime(df_arima_plot["ds"])
+                df_arima_plot["yhat"] = pd.to_numeric(df_arima_plot["yhat"], errors="coerce")
+                df_arima_plot = df_arima_plot.dropna(subset=["ds", "yhat"]).sort_values("ds")
+                df_arima_plot = df_arima_plot[df_arima_plot["ds"] > max_real_date].copy()
+            except Exception as exc:
+                st.warning(f"Erro ao processar arquivo ARIMA pré-calculado: {exc}")
+                df_arima_plot = None
 
-        try:
-            df_arima_plot = compute_arima_forecast(
-                y_values=tuple(df_timeseries_plot["y"].astype(float).tolist()),
-                forecast_start_date=(
-                    max_real_date + pd.Timedelta(days=1)
-                ).strftime("%Y-%m-%d"),
-                forecast_steps=int(forecast_steps),
-            )
-        except Exception as exc:
-            st.error(f"Falha ao gerar previsão ARIMA: {exc}")
-            df_arima_plot = pd.DataFrame(columns=["ds", "yhat"])
+        if df_arima_plot is None or df_arima_plot.empty:
+            forecast_steps = max(len(prophet_future), 30)
+            try:
+                df_arima_plot = compute_arima_forecast(
+                    y_values=tuple(df_timeseries_plot["y"].astype(float).tolist()),
+                    forecast_start_date=(
+                        max_real_date + pd.Timedelta(days=1)
+                    ).strftime("%Y-%m-%d"),
+                    forecast_steps=int(forecast_steps),
+                )
+            except Exception as exc:
+                st.error(f"Falha ao gerar previsão ARIMA: {exc}")
+                df_arima_plot = pd.DataFrame(columns=["ds", "yhat"])
 
         fig_forecast = go.Figure()
         fig_forecast.add_trace(
@@ -208,7 +230,7 @@ def render_analytics_tab(
             yaxis_title="Volume",
             legend_title="Séries",
         )
-        st.plotly_chart(fig_forecast, use_container_width=True)
+        st.plotly_chart(fig_forecast, width="stretch")
         if prophet_date_filter:
             st.caption(
                 f"Filtro Prophet aplicado a partir de: {prophet_date_filter.strftime('%Y-%m-%d')}"
@@ -233,7 +255,7 @@ def render_analytics_tab(
             title="Correlação entre Features Numéricas",
         )
         fig_corr.update_layout(coloraxis_colorbar_title="Correlação")
-        st.plotly_chart(fig_corr, use_container_width=True)
+        st.plotly_chart(fig_corr, width="stretch")
 
     st.subheader("Storytelling Forense: Onde os sinais estão mais fortes")
 
@@ -286,7 +308,7 @@ def render_analytics_tab(
                 color_discrete_map={"REAL": "#1f77b4", "FAKE": "#d62728"},
             )
             fig_artifacts.update_layout(showlegend=False)
-            st.plotly_chart(fig_artifacts, use_container_width=True)
+            st.plotly_chart(fig_artifacts, width="stretch")
         else:
             st.info("Dados insuficientes para distribuição de artefatos visuais.")
 
@@ -311,7 +333,7 @@ def render_analytics_tab(
                 },
                 color_discrete_map={"REAL": "#1f77b4", "FAKE": "#d62728"},
             )
-            st.plotly_chart(fig_platform_mix, use_container_width=True)
+            st.plotly_chart(fig_platform_mix, width="stretch")
         else:
             st.info("Dados insuficientes para distribuição por rede social.")
 
@@ -335,7 +357,7 @@ def render_analytics_tab(
             title="Heatmap: Taxa de Fake por Rede Social x Categoria",
             labels={"x": "Categoria", "y": "Rede Social", "color": "Taxa de Fake"},
         )
-        st.plotly_chart(fig_fake_rate, use_container_width=True)
+        st.plotly_chart(fig_fake_rate, width="stretch")
 
         if not df_fake_rate.empty:
             top_cell = df_fake_rate.sort_values("fake_rate", ascending=False).iloc[0]
@@ -405,10 +427,10 @@ def render_analytics_tab(
             )
 
         fig_pca.update_traces(marker={"size": 9, "opacity": 0.8})
-        st.plotly_chart(fig_pca, use_container_width=True)
+        st.plotly_chart(fig_pca, width="stretch")
 
     st.subheader("Amostra dos Dados Filtrados")
-    st.dataframe(df_cleaned_filtered.head(100), use_container_width=True)
+    st.dataframe(df_cleaned_filtered.head(100), width="stretch")
     return df_cleaned_filtered
 
 
@@ -518,13 +540,13 @@ def render_prediction_tab(df_cleaned: pd.DataFrame) -> None:
             st.success("Resultado: a amostra foi classificada como autêntica (REAL).")
 
         st.caption("Payload enviado ao modelo:")
-        st.dataframe(input_df, use_container_width=True)
+        st.dataframe(input_df, width="stretch")
     except Exception as exc:
         st.error(f"Falha ao executar a predição: {exc}")
 
 
 try:
-    df_cleaned, df_pca, df_timeseries, df_prophet_forecast = load_processed_data()
+    df_cleaned, df_pca, df_timeseries, df_prophet_forecast, df_arima_forecast = load_processed_data()
 except FileNotFoundError as exc:
     st.error(f"Arquivo de dados não encontrado: {exc}")
 except Exception as exc:
@@ -533,7 +555,7 @@ else:
     tab_analytics, tab_test = st.tabs(["Painel Analítico", "Teste do Modelo"])
 
     with tab_analytics:
-        render_analytics_tab(df_cleaned, df_pca, df_timeseries, df_prophet_forecast)
+        render_analytics_tab(df_cleaned, df_pca, df_timeseries, df_prophet_forecast, df_arima_forecast)
 
     with tab_test:
         render_prediction_tab(df_cleaned)
